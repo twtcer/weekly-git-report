@@ -1,0 +1,13 @@
+{
+    "outputPath": "输出目录路径",
+    "username": "Git用户名",
+    "projects": [
+        {
+            "name": "项目名称",
+            "path": "项目路径"
+        }
+    ],
+    "excludeMessages": [
+        "^Merge.*"
+    ]
+}

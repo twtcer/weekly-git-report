@@ -1,0 +1,21 @@
+{
+  "name": "weekly-git-report",
+  "version": "1.0.0",
+  "description": "一键生成优雅的Git提交周报，让汇报工作像忍者一样快、准、狠！",
+  "main": "weekly-report.js",
+  "scripts": {
+    "start": "node weekly-report.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "git",
+    "report",
+    "weekly"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "moment-timezone": "^0.5.43",
+    "fs": "0.0.1-security"
+  }
+}
