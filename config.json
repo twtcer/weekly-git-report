@@ -1,6 +1,14 @@
 {
     "outputPath": "输出目录路径",
-    "username": "Git用户名",
+    "username": "Git用户名", 
+    "timeRange": "week",
+    "outputFormat": {
+        "projectTitle": "===== {projectName}工作报告 =====",
+        "dateRange": "时间范围: {startDate} 至 {endDate}",
+        "commitFormat": "{date}: {message}",
+        "noCommitMessage": "{projectName}在此期间没有提交记录",
+        "dateFormat": "YYYY-MM-DD"
+    },
     "projects": [
         {
             "name": "项目名称",

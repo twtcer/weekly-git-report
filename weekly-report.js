@@ -22,19 +22,32 @@ function generateWeeklyReport(projectPath, projectName) {
         // 设置时区为上海
         const tz = 'Asia/Shanghai';
         const today = moment().tz(tz);
-        const weekAgo = today.clone().subtract(7, 'days');
+        let startDate;
 
-        // 获取一周内指定用户的所有提交
-        const gitLog = execSync(`git log --since="${weekAgo.format('YYYY-MM-DD')}" --author="${config.username}" --format="%ad|%s" --date=format:"%Y-%m-%d"`)
+        // 根据配置的时间范围设置起始日期
+        switch(config.timeRange) {
+            case 'day':
+                startDate = today.clone().subtract(1, 'days');
+                break;
+            case 'month':
+                startDate = today.clone().subtract(1, 'months');
+                break;
+            case 'week':
+            default:
+                startDate = today.clone().subtract(7, 'days');
+        }
+
+        // 获取指定时间范围内指定用户的所有提交
+        const gitLog = execSync(`git log --since="${startDate.format(config.outputFormat.dateFormat)}" --author="${config.username}" --format="%ad|%s" --date=format:"${config.outputFormat.dateFormat}"`)
             .toString()
             .trim();
 
         if (!gitLog) {
-            return `\n${projectName}本周没有提交记录\n`;
+            return `\n${config.outputFormat.noCommitMessage.replace('{projectName}', projectName)}\n`;
         }
 
-        let report = `\n===== ${projectName}本周工作报告 =====\n`;
-        report += `时间范围: ${weekAgo.format('YYYY-MM-DD')} 至 ${today.format('YYYY-MM-DD')}\n\n`;
+        let report = `\n${config.outputFormat.projectTitle.replace('{projectName}', projectName)}\n`;
+        report += `${config.outputFormat.dateRange.replace('{startDate}', startDate.format(config.outputFormat.dateFormat)).replace('{endDate}', today.format(config.outputFormat.dateFormat))}\n\n`;
 
         // 按日期分组整理提交记录
         const dailyCommits = {};
@@ -58,11 +71,11 @@ function generateWeeklyReport(projectPath, projectName) {
         Object.keys(dailyCommits)
             .sort((a, b) => b.localeCompare(a))
             .forEach(date => {
-                report += `[${date}]\n`;
-                dailyCommits[date].forEach(msg => {
-                    report += `- ${msg}\n`;
+                dailyCommits[date].forEach(message => {
+                    report += config.outputFormat.commitFormat
+                        .replace('{date}', date)
+                        .replace('{message}', message) + '\n';
                 });
-                report += '\n';
             });
 
         return report;
@@ -71,10 +84,10 @@ function generateWeeklyReport(projectPath, projectName) {
     }
 }
 
-// 生成所有项目的周报
+// 生成所有项目的报告
 function generateAllReports() {
-    const reportDate = moment().format('YYYY-MM-DD');
-    let allReports = `周报生成日期: ${reportDate}\n`;
+    const reportDate = moment().format(config.outputFormat.dateFormat);
+    let allReports = `报告生成日期: ${reportDate}\n`;
 
     for (const project of config.projects) {
         allReports += generateWeeklyReport(project.path, project.name);
@@ -86,9 +99,9 @@ function generateAllReports() {
     }
 
     // 写入文件
-    const reportPath = path.join(config.outputPath, `weekly-report-${reportDate}.txt`);
+    const reportPath = path.join(config.outputPath, `report-${reportDate}.txt`);
     fs.writeFileSync(reportPath, allReports, 'utf8');
-    console.log(`周报已生成: ${reportPath}`);
+    console.log(`报告已生成: ${reportPath}`);
 }
 
 generateAllReports();

@@ -23,7 +23,7 @@
 ## 🛠️ 功能特点
 
 - 支持多个项目仓库的提交记录统计
-- 可配置时间范围（默认统计上周一到本周一的提交）
+- 可配置时间范围（支持按天、周、月统计）
 - 支持按用户筛选提交记录
 - 自定义输出路径
 - 支持排除特定格式的提交信息（如 Merge 提交）
@@ -45,12 +45,20 @@
 3. 配置config.json:
    ```json
    {
-     "outputPath": "E:/Documents/report",
+     "outputPath": "输出目录路径",
      "username": "Git用户名",
+     "timeRange": "week", // 可选值: "day"(按天), "week"(按周), "month"(按月)
+     "outputFormat": {
+       "projectTitle": "===== {projectName}工作报告 =====",
+       "dateRange": "时间范围: {startDate} 至 {endDate}",
+       "commitFormat": "{date}: {message}",
+       "noCommitMessage": "{projectName}在此期间没有提交记录",
+       "dateFormat": "YYYY-MM-DD"
+     },
      "projects": [
        {
          "name": "项目名称",
-         "path": "E:/Code/project-name"
+         "path": "项目路径"
        }
      ],
      "excludeMessages": [
