@@ -33,7 +33,7 @@
 
 1. 克隆项目到本地
    ```bash
-   git clone https://github.com/your-username/weekly-git-report.git
+   git clone git@github.com:llt3677/weekly-git-report.git
    cd weekly-git-report
    ```
 
