@@ -1,21 +1,26 @@
 {
-    "outputPath": "输出目录路径",
-    "username": "Git用户名", 
+    "outputPath": "./reports",
+    "username": "your-git-username",
     "timeRange": "week",
     "outputFormat": {
-        "projectTitle": "===== {projectName}工作报告 =====",
+        "projectTitle": "## {projectName}",
         "dateRange": "时间范围: {startDate} 至 {endDate}",
-        "commitFormat": "{date}: {message}",
-        "noCommitMessage": "{projectName}在此期间没有提交记录",
+        "commitFormat": "- [{date}] {message}",
+        "noCommitMessage": "### {projectName} 没有提交记录",
         "dateFormat": "YYYY-MM-DD"
     },
     "projects": [
         {
-            "name": "项目名称",
-            "path": "项目路径"
+            "name": "项目1",
+            "path": "/path/to/project1"
+        },
+        {
+            "name": "项目2",
+            "path": "/path/to/project2"
         }
     ],
     "excludeMessages": [
-        "^Merge.*"
+        "^Merge",
+        "^chore:"
     ]
 }

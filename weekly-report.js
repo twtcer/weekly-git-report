@@ -4,70 +4,111 @@ const fs = require('fs');
 const path = require('path');
 
 // 读取配置文件
-const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
-
-function generateWeeklyReport(projectPath, projectName) {
+function loadConfig() {
     try {
-        // 切换到项目目录
-        process.chdir(projectPath);
+        return JSON.parse(fs.readFileSync('config.json', 'utf8'));
+    } catch (error) {
+        throw new Error(`配置文件读取失败: ${error.message}`);
+    }
+}
 
+// 验证配置
+function validateConfig(config) {
+    const requiredFields = ['timeRange', 'username', 'outputPath', 'projects'];
+    const missingFields = requiredFields.filter(field => !config[field]);
+    
+    if (missingFields.length > 0) {
+        throw new Error(`配置缺少必要字段: ${missingFields.join(', ')}`);
+    }
+}
+
+// 获取日期范围
+function getDateRange(timeRange, tz = 'Asia/Shanghai') {
+    const today = moment().tz(tz);
+    let startDate;
+
+    switch(timeRange) {
+        case 'day':
+            startDate = today.clone().subtract(1, 'days');
+            break;
+        case 'month':
+            startDate = today.clone().subtract(1, 'months');
+            break;
+        case 'week':
+        default:
+            startDate = today.clone().subtract(7, 'days');
+    }
+
+    return { startDate, endDate: today };
+}
+
+// 获取Git提交记录
+function getGitCommits(projectPath, startDate, config) {
+    try {
+        process.chdir(projectPath);
+        const dateFormat = config.outputFormat.dateFormat || 'YYYY-MM-DD';
+        const gitCommand = `git log --since="${startDate.format(dateFormat)}" --author="${config.username}" --format="%cd|%s" --date=format:"%Y-%m-%d"`;
+        console.log('执行Git命令:', gitCommand);
+        const result = execSync(gitCommand, { encoding: 'utf8' }).trim();
+        if (!result) {
+            console.log('没有找到符合条件的提交记录');
+            return '';
+        }
+        console.log('Git命令结果:', result);
+        return result;
+    } catch (error) {
+        throw new Error(`获取Git提交记录失败: ${error.message}`);
+    }
+}
+
+// 处理提交记录
+function processCommits(gitLog, config) {
+    const dailyCommits = {};
+    
+    gitLog.split('\n').forEach(line => {
+        if (!line) return;
+        
+        const [date, message] = line.split('|');
+        const shouldExclude = config.excludeMessages?.some(pattern => 
+            new RegExp(pattern).test(message)
+        );
+
+        if (!shouldExclude) {
+            if (!dailyCommits[date]) {
+                dailyCommits[date] = [];
+            }
+            dailyCommits[date].push(message);
+        }
+    });
+
+    return dailyCommits;
+}
+
+function generateWeeklyReport(projectPath, projectName, config) {
+    try {
         // 检查是否是Git仓库
         try {
             execSync('git rev-parse --is-inside-work-tree', { stdio: 'ignore' });
-        } catch (error) {
-            console.log(`${projectName} 不是一个有效的Git仓库`);
+        } catch {
+            console.warn(`警告: ${projectName} 不是一个有效的Git仓库`);
             return '';
         }
 
-        // 设置时区为上海
-        const tz = 'Asia/Shanghai';
-        const today = moment().tz(tz);
-        let startDate;
-
-        // 根据配置的时间范围设置起始日期
-        switch(config.timeRange) {
-            case 'day':
-                startDate = today.clone().subtract(1, 'days');
-                break;
-            case 'month':
-                startDate = today.clone().subtract(1, 'months');
-                break;
-            case 'week':
-            default:
-                startDate = today.clone().subtract(7, 'days');
-        }
-
-        // 获取指定时间范围内指定用户的所有提交
-        const gitLog = execSync(`git log --since="${startDate.format(config.outputFormat.dateFormat)}" --author="${config.username}" --format="%ad|%s" --date=format:"${config.outputFormat.dateFormat}"`)
-            .toString()
-            .trim();
+        const { startDate, endDate } = getDateRange(config.timeRange);
+        const gitLog = getGitCommits(projectPath, startDate, config);
 
         if (!gitLog) {
             return `\n${config.outputFormat.noCommitMessage.replace('{projectName}', projectName)}\n`;
         }
 
+        const dailyCommits = processCommits(gitLog, config);
+        
+        // 生成报告
         let report = `\n${config.outputFormat.projectTitle.replace('{projectName}', projectName)}\n`;
-        report += `${config.outputFormat.dateRange.replace('{startDate}', startDate.format(config.outputFormat.dateFormat)).replace('{endDate}', today.format(config.outputFormat.dateFormat))}\n\n`;
+        report += `${config.outputFormat.dateRange
+            .replace('{startDate}', startDate.format(config.outputFormat.dateFormat))
+            .replace('{endDate}', endDate.format(config.outputFormat.dateFormat))}\n\n`;
 
-        // 按日期分组整理提交记录
-        const dailyCommits = {};
-        gitLog.split('\n').forEach(line => {
-            const [date, message] = line.split('|');
-            // 检查是否需要排除该消息
-            const shouldExclude = config.excludeMessages && config.excludeMessages.some(pattern => {
-                const regex = new RegExp(pattern);
-                return regex.test(message);
-            });
-
-            if (!shouldExclude) {
-                if (!dailyCommits[date]) {
-                    dailyCommits[date] = [];
-                }
-                dailyCommits[date].push(message);
-            }
-        });
-
-        // 按日期生成报告内容
         Object.keys(dailyCommits)
             .sort((a, b) => b.localeCompare(a))
             .forEach(date => {
@@ -80,28 +121,38 @@ function generateWeeklyReport(projectPath, projectName) {
 
         return report;
     } catch (error) {
-        return `\n${projectName}发生错误: ${error.message}\n`;
+        console.error(`处理项目 ${projectName} 时发生错误:`, error);
+        return `\n${projectName} 处理失败: ${error.message}\n`;
     }
 }
 
-// 生成所有项目的报告
-function generateAllReports() {
-    const reportDate = moment().format(config.outputFormat.dateFormat);
-    let allReports = `报告生成日期: ${reportDate}\n`;
+async function generateAllReports() {
+    try {
+        const config = loadConfig();
+        validateConfig(config);
 
-    for (const project of config.projects) {
-        allReports += generateWeeklyReport(project.path, project.name);
+        const reportDate = moment().format(config.outputFormat.dateFormat);
+        let allReports = `报告生成日期: ${reportDate}\n`;
+
+        for (const project of config.projects) {
+            const originalCwd = process.cwd();
+            const report = generateWeeklyReport(project.path, project.name, config);
+            process.chdir(originalCwd);
+            allReports += report;
+        }
+
+        // 确保输出目录存在
+        await fs.promises.mkdir(config.outputPath, { recursive: true });
+
+        // 写入文件
+        const reportPath = path.join(config.outputPath, `report-${reportDate}.txt`);
+        await fs.promises.writeFile(reportPath, allReports, 'utf8');
+        console.log(`报告已成功生成: ${reportPath}`);
+    } catch (error) {
+        console.error('生成报告失败:', error);
+        process.exit(1);
     }
-
-    // 确保输出目录存在
-    if (!fs.existsSync(config.outputPath)) {
-        fs.mkdirSync(config.outputPath, { recursive: true });
-    }
-
-    // 写入文件
-    const reportPath = path.join(config.outputPath, `report-${reportDate}.txt`);
-    fs.writeFileSync(reportPath, allReports, 'utf8');
-    console.log(`报告已生成: ${reportPath}`);
 }
 
+// 启动程序
 generateAllReports();
