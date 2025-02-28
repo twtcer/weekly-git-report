@@ -25,21 +25,37 @@ function validateConfig(config) {
 // 获取日期范围
 function getDateRange(timeRange, tz = 'Asia/Shanghai') {
     const today = moment().tz(tz);
-    let startDate;
+    let startDate, endDate;
 
     switch(timeRange) {
         case 'day':
             startDate = today.clone().subtract(1, 'days');
+            endDate = today.clone();
             break;
         case 'month':
             startDate = today.clone().subtract(1, 'months');
+            endDate = today.clone();
             break;
         case 'week':
         default:
-            startDate = today.clone().subtract(7, 'days');
+            // 如果今天是周末，获取上周五
+            endDate = today.clone();
+            if (today.day() === 0) { // 周日
+                endDate.subtract(2, 'days'); // 回到周五
+            } else if (today.day() === 6) { // 周六
+                endDate.subtract(1, 'days'); // 回到周五
+            } else if (today.day() === 5) { // 如果是周五，不变
+                // do nothing
+            } else {
+                endDate.day(5); // 设置为本周五
+            }
+            
+            // 从结束日期（周五）往前推到对应的周一
+            startDate = endDate.clone().day(1);
+            break;
     }
 
-    return { startDate, endDate: today };
+    return { startDate, endDate };
 }
 
 // 获取Git提交记录
