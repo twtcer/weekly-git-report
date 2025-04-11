@@ -14,7 +14,7 @@ function loadConfig() {
 
 // 验证配置
 function validateConfig(config) {
-    const requiredFields = ['timeRange', 'username', 'outputPath', 'projects'];
+    const requiredFields = ['timeRange', 'outputPath', 'projects']; //  'username',
     const missingFields = requiredFields.filter(field => !config[field]);
     
     if (missingFields.length > 0) {
@@ -63,7 +63,8 @@ function getGitCommits(projectPath, startDate, config) {
     try {
         process.chdir(projectPath);
         const dateFormat = config.outputFormat.dateFormat || 'YYYY-MM-DD';
-        const gitCommand = `git log --since="${startDate.format(dateFormat)}" --author="${config.username}" --format="%cd|%s" --date=format:"%Y-%m-%d"`;
+        const author=config.username.length>0?`--author="${config.username}"`:"";
+        const gitCommand = `git log --since="${startDate.format(dateFormat)}" ${author} --format="%cd|%s" --date=format:"%Y-%m-%d"`;
         console.log('执行Git命令:', gitCommand);
         const result = execSync(gitCommand, { encoding: 'utf8' }).trim();
         if (!result) {
