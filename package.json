@@ -15,7 +15,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "fs": "0.0.1-security",
     "moment-timezone": "^0.5.43",
-    "fs": "0.0.1-security"
+    "yargs": "^17.7.2"
   }
 }
