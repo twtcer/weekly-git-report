@@ -1,7 +1,8 @@
 {
     "outputPath": "./reports",
-    "username": "your-git-username",
+    "username": "",
     "timeRange": "week",
+    "startDate":"2025-04-01",
     "outputFormat": {
         "projectTitle": "## {projectName}",
         "dateRange": "时间范围: {startDate} 至 {endDate}",
@@ -11,13 +12,38 @@
     },
     "projects": [
         {
-            "name": "项目1",
-            "path": "/path/to/project1"
-        },
-        {
-            "name": "项目2",
-            "path": "/path/to/project2"
-        }
+            "path": "rootpath",
+            "subProjects": [
+                {
+                    "name": "app1",
+                    "path": "path"
+                },
+                {
+                    "name": "app2",
+                    "path": "path"
+                }
+                ,
+                {
+                    "name": "app3",
+                    "path": "path"
+                }
+                ,
+                {
+                    "name": "app4",
+                    "path": "path"
+                }
+                ,
+                {
+                    "name": "app5",
+                    "path": "path"
+                }
+                ,
+                {
+                    "name": "app6",
+                    "path": "path"
+                }
+            ]
+        }        
     ],
     "excludeMessages": [
         "^Merge",

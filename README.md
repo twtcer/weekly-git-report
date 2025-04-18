@@ -40,8 +40,9 @@
 ```json
 {
     "outputPath": "./reports",
-    "username": "your-git-username",
+    "username": "",
     "timeRange": "week",
+    "startDate":"2025-04-01",
     "outputFormat": {
         "projectTitle": "## {projectName}",
         "dateRange": "时间范围: {startDate} 至 {endDate}",
@@ -51,9 +52,32 @@
     },
     "projects": [
         {
-            "name": "项目1",
-            "path": "/path/to/project1"
-        }
+            "path": "rootpath",
+            "subProjects": [
+                {
+                    "name": "app1"
+                },
+                {
+                    "name": "app2"
+                }
+                ,
+                {
+                    "name": "app3"
+                }
+                ,
+                {
+                    "name": "app4"
+                }
+                ,
+                {
+                    "name": "app5"
+                }
+                ,
+                {
+                    "name": "app6"
+                }
+            ]
+        }        
     ],
     "excludeMessages": [
         "^Merge",
