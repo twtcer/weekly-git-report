@@ -5,6 +5,7 @@
   "main": "weekly-report.js",
   "scripts": {
     "start": "node weekly-report.js",
+    "start:main": "node weekly-report.js -c config1",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

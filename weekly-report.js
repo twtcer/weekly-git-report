@@ -24,11 +24,20 @@ function validateConfig(config) {
   }
 }
 
-// 获取日期范围
-function getDateRange(config, tz = 'Asia/Shanghai') {
+/**
+ * 
+ * @param {*} config 配置信息
+ * @param {*} argv 启动参数
+ * @param {*} tz 时区
+ * @returns 
+ */
+function getDateRange(config, argv, tz = 'Asia/Shanghai') {
   const today = moment().tz(tz);
   const timeRange = config.timeRange;
   let startDate, endDate;
+
+  if(argv.start!=null) 
+    config.startDate = argv.start
 
   // 指定日期生成
   if (config.startDate && config.startDate.length > 0) {
@@ -130,7 +139,7 @@ function generateWeeklyReport(
     // 检查是否是Git仓库
     try {
       execSync('git rev-parse --is-inside-work-tree', { stdio: 'ignore' });
-    } catch {
+    } catch(err) {
       console.warn(`警告: ${projectName} 不是一个有效的Git仓库`);
       return '';
     }
@@ -184,6 +193,11 @@ async function generateAllReports() {
         description: '配置文件名称',
         type: 'string',
       })
+      .option('start', {
+        alias: 's',
+        description: '开始日期',
+        type: 'string',
+      })
       .help()
       .alias('help', 'h').argv;
 
@@ -195,7 +209,7 @@ async function generateAllReports() {
     );
     let allReports = `报告生成日期: ${reportDate}\n`;
 
-    let { startDate, endDate } = getDateRange(config);
+    let { startDate, endDate } = getDateRange(config, argv);
     // 修改支持根目录+子项目模式
     for (const project of config.projects) {
       const originalCwd = process.cwd();
