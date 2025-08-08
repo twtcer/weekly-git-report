@@ -238,7 +238,7 @@ async function generateAllReports() {
     const dateFormat = config.outputFormat.dateFormat || 'YYYYMMDD';
     const reportPath = path.join(
       config.outputPath,
-      `report-${startDate.format(dateFormat)}-${endDate.format(dateFormat)}.md`
+      `report-${config.timeRange}-${startDate.format(dateFormat)}-${endDate.format(dateFormat)}.md`
     );
     await fs.promises.writeFile(reportPath, allReports, 'utf8');
     console.log(`报告已成功生成: ${reportPath}`);
