@@ -41,7 +41,7 @@
 {
     "outputPath": "./reports",
     "username": "",
-    "timeRange": "week",
+    "timeRange": "week", // 支持week，month
     "startDate":"2025-04-01",
     "outputFormat": {
         "projectTitle": "## {projectName}",
@@ -55,26 +55,17 @@
             "path": "rootpath",
             "subProjects": [
                 {
-                    "name": "app1"
+                    "name": "app1",
+                    "path": "" // 相对路径
                 },
                 {
-                    "name": "app2"
+                    "name": "app2",
+                    "path": ""
                 }
                 ,
                 {
-                    "name": "app3"
-                }
-                ,
-                {
-                    "name": "app4"
-                }
-                ,
-                {
-                    "name": "app5"
-                }
-                ,
-                {
-                    "name": "app6"
+                    "name": "app3",
+                    "path": ""
                 }
             ]
         }        
@@ -107,15 +98,25 @@
 #### projects 配置示例
 ```json
 "projects": [
-    {
-        "name": "项目1",
-        "path": "/path/to/project1"
-    },
-    {
-        "name": "项目2",
-        "path": "/path/to/project2"
-    }
-]
+        {
+            "path": "rootpath",
+            "subProjects": [
+                {
+                    "name": "app1",
+                    "path": "" // 相对路径
+                },
+                {
+                    "name": "app2",
+                    "path": ""
+                }
+                ,
+                {
+                    "name": "app3",
+                    "path": ""
+                }
+            ]
+        }        
+    ]
 ```
 
 ## 🚀 使用方法
@@ -123,7 +124,9 @@
 运行以下命令生成报告：
 
 ```bash
-npm start
+yarn start # 默认当前周报
+yarn start:week # 周报
+yarn start:month # 月报
 ```
 
 ## 📝 输出示例

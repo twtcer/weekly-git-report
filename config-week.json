@@ -1,0 +1,69 @@
+{
+    "outputPath": "./reports",
+    "username": "",
+    "timeRange": "week",
+    "startDate":"",
+    "outputFormat": {
+        "projectTitle": "## {projectName}",
+        "dateRange": "时间范围: {startDate} 至 {endDate}",
+        "commitFormat": "- [{date}] {message}",
+        "noCommitMessage": "### {projectName} 没有提交记录",
+        "dateFormat": "YYYYMMDD"
+    },
+    "projects": [
+        {
+            "path": "D:/codes/bhy",
+            "subProjects": [
+                {
+                    "name": "管理端门户前端",
+                    "path": "stdadmin_web"
+                },
+                {
+                    "name": "管理端门户后端",
+                    "path": "stdadmin_system"
+                }
+                ,
+                {
+                    "name": "门户后端",
+                    "path": "sitenet_system"
+                }
+                ,
+                {
+                    "name": "门户前端",
+                    "path": "sitnet_web"
+                }
+                ,
+                {
+                    "name": "SSO后端",
+                    "path": "yny-sso-system"
+                }
+                ,
+                {
+                    "name": "SSO前端",
+                    "path": "yny-sso-web"
+                },
+                {
+                    "name": "采集系统",
+                    "path": "yny_spider_flow"
+                },
+                {
+                    "name": "智慧监管",
+                    "path": "yny-core-check-web"
+                },
+                {
+                    "name": "小程序",
+                    "path": "yny-xcx-web"
+                },
+                {
+                    "name": "大数据",
+                    "path": "yny-bigdata"
+                }
+
+            ]
+        }        
+    ],
+    "excludeMessages": [
+        "^Merge",
+        "^chore:"
+    ]
+}

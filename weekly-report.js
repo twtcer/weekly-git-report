@@ -32,49 +32,45 @@ function validateConfig(config) {
  * @returns 
  */
 function getDateRange(config, argv, tz = 'Asia/Shanghai') {
-  const today = moment().tz(tz);
+  let today = moment().tz(tz);
   const timeRange = config.timeRange;
   let startDate, endDate;
 
-  if(argv.start!=null) 
-    config.startDate = argv.start
+  if(argv.start!=null){
+    config.startDate = argv.start 
+    // 指定日期生成 
+    today = moment(config.startDate).tz('Asia/Shanghai');
+  }
+ 
+  switch (timeRange) {
+    case 'day':
+      startDate = today.clone().subtract(1, 'days');
+      endDate = today.clone();
+      break;
+    case 'month':
+      startDate = today.clone();
+      endDate = today.clone().add(1, 'months');
+      break;
+    case 'week':
+    default:
+      // 如果今天是周末，获取上周五
+      endDate = today.clone();
+      if (today.day() === 0) {
+        // 周日
+        endDate.subtract(2, 'days'); // 回到周五
+      } else if (today.day() === 6) {
+        // 周六
+        endDate.subtract(1, 'days'); // 回到周五
+      } else if (today.day() === 5) {
+        // 如果是周五，不变
+        // do nothing
+      } else {
+        endDate.day(5); // 设置为本周五
+      }
 
-  // 指定日期生成
-  if (config.startDate && config.startDate.length > 0) {
-    const day = moment(config.startDate).tz('Asia/Shanghai');
-    startDate = day;
-    endDate = day.clone().day(5);
-  } else {
-    switch (timeRange) {
-      case 'day':
-        startDate = today.clone().subtract(1, 'days');
-        endDate = today.clone();
-        break;
-      case 'month':
-        startDate = today.clone().subtract(1, 'months');
-        endDate = today.clone();
-        break;
-      case 'week':
-      default:
-        // 如果今天是周末，获取上周五
-        endDate = today.clone();
-        if (today.day() === 0) {
-          // 周日
-          endDate.subtract(2, 'days'); // 回到周五
-        } else if (today.day() === 6) {
-          // 周六
-          endDate.subtract(1, 'days'); // 回到周五
-        } else if (today.day() === 5) {
-          // 如果是周五，不变
-          // do nothing
-        } else {
-          endDate.day(5); // 设置为本周五
-        }
-
-        // 从结束日期（周五）往前推到对应的周一
-        startDate = endDate.clone().day(1);
-        break;
-    }
+      // 从结束日期（周五）往前推到对应的周一
+      startDate = endDate.clone().day(1);
+      break;
   }
 
   return { startDate, endDate };

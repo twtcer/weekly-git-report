@@ -5,7 +5,8 @@
   "main": "weekly-report.js",
   "scripts": {
     "start": "node weekly-report.js",
-    "start:main": "node weekly-report.js -c config1",
+    "start:week": "node weekly-report.js -c config-week",
+    "start:month": "node weekly-report.js -c config-month",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
